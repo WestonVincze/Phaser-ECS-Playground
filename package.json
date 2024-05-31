@@ -23,6 +23,7 @@
         "vite": "^5.2.11"
     },
     "dependencies": {
+        "bitecs": "^0.3.40",
         "phaser": "^3.80.1"
     }
 }
