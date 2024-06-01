@@ -35,6 +35,7 @@ export default function createSpriteSystem(scene: Scene, textures: string[]) {
 
       sprite.x = Position.x[eid];
       sprite.y = Position.y[eid];
+      sprite.depth = Position.y[eid];
     }
 
     const entitiesExited = spriteQueryExit(world);

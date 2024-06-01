@@ -24,6 +24,7 @@
     },
     "dependencies": {
         "bitecs": "^0.3.40",
-        "phaser": "^3.80.1"
+        "phaser": "^3.80.1",
+        "rxjs": "^7.8.1"
     }
 }

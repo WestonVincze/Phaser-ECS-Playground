@@ -1,10 +1,11 @@
 import { Scene } from 'phaser';
-import { Position, Sprite, Target, Velocity } from '../components';
+import { Behavior, Behaviors, Position, Sprite, Target, Velocity } from '../components';
 import { createMovementSystem } from '../systems/MovementSystem';
 import { IWorld, System, addComponent, addEntity, createWorld, hasComponent } from 'bitecs';
 import createSpriteSystem from '../systems/SpriteSystem';
 import { Crown, Necro } from '../components/Tags';
 import { createTargetingSystem } from '../systems/TargetSystem';
+import { cursorTargetSystem } from '../systems/CursorTargetSystem';
 
 enum Textures {
     Skele,
@@ -45,8 +46,16 @@ export class Game extends Scene
     }
 
     this.world = createWorld();
+    /*
+    const mouseClick$ = fromEvent<MouseEvent>(document, 'mousedown').pipe(
+      tap(() => console.log("CLICKED")),
+      map((event) => ({ x: event.clientX, y: event.clientY })),
+      tap(({ x, y }) => console.log(`${x} ${y}`)),
+    ).subscribe();
+    */
+    cursorTargetSystem(this.world);
 
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < 800; i++) {
       const eid = createEntity(this.world);
       Position.x[eid] = Math.random() * 1024;
       Position.y[eid] = Math.random() * 1024;
@@ -54,7 +63,11 @@ export class Game extends Scene
       Target.x[eid] = Math.random() * 600;
       Target.y[eid] = Math.random() * 1200;
       */
-      if (hasComponent(this.world, Necro, eid)) Sprite.texture[eid] = Textures.Skele;
+      if (hasComponent(this.world, Necro, eid)) {
+        addComponent(this.world, Behavior, eid);
+        Behavior.type[eid] = Behaviors.FollowCursor;
+        Sprite.texture[eid] = Textures.Skele;
+      } 
       if (hasComponent(this.world, Crown, eid)) Sprite.texture[eid] = Textures.Guard;
     }
 

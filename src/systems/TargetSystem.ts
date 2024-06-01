@@ -1,11 +1,9 @@
-// create a new target every x seconds?
-
-import { defineQuery, defineSystem } from "bitecs"
-import { Position, Target, Sprite } from "../components";
+import { defineQuery, defineSystem, hasComponent } from "bitecs"
+import { Position, Target, Sprite, Behavior, Behaviors } from "../components";
 import { Crown, Necro } from "../components/Tags";
 
 export const createTargetingSystem = () => {
-  const necroTargetQuery = defineQuery([Target, Position, Sprite, Necro]);
+  const necroTargetQuery = defineQuery([Target, Position, Sprite, Necro, Behavior]);
   const crownTargetQuery = defineQuery([Target, Position, Sprite, Crown]);
 
   return defineSystem(world => {
@@ -14,6 +12,8 @@ export const createTargetingSystem = () => {
 
     const updateTargets = (sourceEntities: number[], targetEntities: number[]) => {
       for (const sourceEid of sourceEntities) {
+        if (hasComponent(world, Behavior, sourceEid) && Behavior.type[sourceEid] === Behaviors.FollowCursor) return;
+
         let closestDistance = Infinity;
         let closestTarget = { x: 0, y: 0 };
 

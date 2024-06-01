@@ -11,6 +11,19 @@ import { Position, Velocity, Target } from "../components";
 
 type Vector2 = { x: number, y: number };
 
+const normalizeForce = ({ x , y }: Vector2) => {
+  if (x === 0 && y === 0) return { x, y };
+
+  const magnitude = Math.sqrt(x * x + y * y);
+
+  if (magnitude > 0) {
+    x /= magnitude;
+    y /= magnitude;
+  }
+
+  return { x, y }
+}
+
 const calculateFollowForce = (self: Vector2, target: Vector2) => {
   const followForce = { x: 0, y: 0 };
   const dx = target.x - self.x;
@@ -30,7 +43,7 @@ const calculateFollowForce = (self: Vector2, target: Vector2) => {
 
 export const createMovementSystem = () => {
   const movementQuery = defineQuery([Position, Velocity, Target]);
-  const separationThreshold = 20;
+  const separationThreshold = 50;
 
   return defineSystem((world) => {
     const entities = movementQuery(world);
@@ -52,8 +65,8 @@ export const createMovementSystem = () => {
       // calculate separation force
       const separationForce: Vector2 = { x: 0, y: 0}
 
-      for (let i = 0; i < entities.length; i++) {
-        const otherEid = entities[i];
+      for (let j = i + 1; j < entities.length; j++) {
+        const otherEid = entities[j];
         if (eid === otherEid) continue;
         const ox = Position.x[otherEid];
         const oy = Position.y[otherEid];
@@ -69,17 +82,17 @@ export const createMovementSystem = () => {
         if (distance < separationThreshold) {
           // distance = Math.sqrt(distance)
           const force = separationThreshold - distance;
-          separationForce.x += (dx / distance) * force;
-          separationForce.y += (dy / distance) * force;
+          separationForce.x += (dx / distance) * force * 2;
+          separationForce.y += (dy / distance) * force * 2;
         }
       }
+      const normalizedForce = normalizeForce({ x: followForce.x + separationForce.x, y: followForce.y + separationForce.y });
 
-      Velocity.x[eid] = followForce.x + separationForce.x;
-      Velocity.y[eid] = followForce.y + separationForce.y;
+      Velocity.x[eid] = normalizedForce.x;
+      Velocity.y[eid] = normalizedForce.y;
 
       Position.x[eid] += Velocity.x[eid];
       Position.y[eid] += Velocity.y[eid];
-      console.log(`I am ${eid} and my position is: x: ${Position.x[eid]}, y: ${Position.y[eid]}`);
     }
 
     return world;
