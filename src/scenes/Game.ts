@@ -1,11 +1,12 @@
 import { Scene } from 'phaser';
 import { Behavior, Behaviors, Position, Sprite, Target, Velocity } from '../components';
 import { createMovementSystem } from '../systems/MovementSystem';
-import { IWorld, System, addComponent, addEntity, createWorld, hasComponent } from 'bitecs';
+import { IWorld, System, addComponent, addEntity, createWorld, defineQuery, hasComponent } from 'bitecs';
 import createSpriteSystem from '../systems/SpriteSystem';
 import { Crown, Necro } from '../components/Tags';
 import { createTargetingSystem } from '../systems/TargetSystem';
 import { cursorTargetSystem } from '../systems/CursorTargetSystem';
+import { filter, fromEvent } from 'rxjs';
 
 enum Textures {
     Skele,
@@ -46,16 +47,22 @@ export class Game extends Scene
     }
 
     this.world = createWorld();
-    /*
-    const mouseClick$ = fromEvent<MouseEvent>(document, 'mousedown').pipe(
-      tap(() => console.log("CLICKED")),
-      map((event) => ({ x: event.clientX, y: event.clientY })),
-      tap(({ x, y }) => console.log(`${x} ${y}`)),
-    ).subscribe();
-    */
+
     cursorTargetSystem(this.world);
 
-    for (let i = 0; i < 800; i++) {
+    fromEvent<KeyboardEvent>(document, 'keypress').pipe(
+      filter(event => event.key === "f")
+    ).subscribe(() => {
+      console.log('pressed F')
+      const behaviorQuery = defineQuery([Behavior, Necro])
+      const entities = behaviorQuery(this.world);
+
+      for (let i = 0; i < entities.length; i++) {
+        Behavior.type[i] = Behavior.type[i] === Behaviors.AutoTarget ? Behaviors.FollowCursor : Behaviors.AutoTarget;
+      }
+    })
+
+    for (let i = 0; i < 1000; i++) {
       const eid = createEntity(this.world);
       Position.x[eid] = Math.random() * 1024;
       Position.y[eid] = Math.random() * 1024;
