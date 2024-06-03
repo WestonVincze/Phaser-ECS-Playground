@@ -1,9 +1,14 @@
 # Phaser + bitecs Testing
 
-This project was bootstrapped with the Phaser 3 project template that uses Vite for bundling. ### Versions
+This project was bootstrapped with the Phaser 3 project template that uses Vite for bundling.
 
 ## What was added
-Some assets from a separate game and 
+
+BitECS, RXJS, and some assets from another project
+
+## Why?
+
+To experiment with an ECS workflow and determine its feasibility
 
 ## Available Commands
 
